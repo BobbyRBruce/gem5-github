@@ -1,0 +1,35 @@
+
+name: PR Updated
+on:
+    pull_request_review:
+    pull_request:
+        types: [synchronize, edited, reopened, assigned]
+
+jobs:
+    move-to-updated:
+        # Some conditions:
+        # 1. If it's mergable, we move it to a special "Mergable" column.
+        # see 'move-to-mergable'.
+        # 2. We don't anything if its a draft.
+        if: context.
+        if: github.event.pull_request.mergeable == false && github.event.pull_request.draft == false
+        name: "Move to Updated"
+        runs-on: ubuntu-latest
+        steps:
+            - uses: alex-page/github-project-automation-plus@v0.8.3
+              with:
+                project: "PR Status Board"
+                column: "Updated"
+                repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    move-to-mergable:
+        # If it's mergable, we move it to a special "Mergable" column.
+        if: github.event.pull_request.mergeable == true
+        name: "Move to Mergable"
+        runs-on: ubuntu-latest
+        steps:
+            - uses: alex-page/github-project-automation-plus@v0.8.3
+              with:
+                project: "PR Status Board"
+                column: "Mergable"
+                repo-token: ${{ secrets.GITHUB_TOKEN }}
